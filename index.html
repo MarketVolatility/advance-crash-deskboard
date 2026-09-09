@@ -326,6 +326,53 @@ button.secondary {
     margin-bottom:20px;
 }
 
+/* GRANULAR REGIME MATRIX */
+.matrix-wrap {
+    overflow-x:auto;
+}
+
+.regime-matrix {
+    width:100%;
+    border-collapse:collapse;
+    min-width:820px;
+    font-size:12px;
+    margin:0;
+}
+
+.regime-matrix th,
+.regime-matrix td {
+    border:1px solid var(--border);
+    padding:11px 10px;
+    vertical-align:top;
+    line-height:1.45;
+}
+
+.regime-matrix th {
+    background:var(--card-bg2);
+    color:var(--text-muted);
+    font-size:10px;
+    letter-spacing:.06em;
+    text-align:left;
+}
+
+.regime-matrix td:nth-child(1) { width:8%; white-space:nowrap; }
+.regime-matrix td:nth-child(2) { width:15%; }
+.regime-matrix td:nth-child(3) { width:22%; }
+.regime-matrix td:nth-child(4) { width:55%; }
+
+.matrix-row {
+    transition:background .2s ease, box-shadow .2s ease;
+}
+
+.matrix-row.active {
+    background:rgba(59,130,246,.12) !important;
+    box-shadow:inset 4px 0 0 var(--blue);
+}
+
+.matrix-row:hover {
+    background:rgba(59,130,246,.06);
+}
+
 /* RESPONSIVE */
 
 @media(max-width:800px) {
@@ -388,43 +435,58 @@ button.secondary {
 
     <div class="scale-card">
         <div class="scale-title">
-            Systemic Calibration Matrix — Maximum 40 Points
+            📊 Systemic Risk Regime Matrix — Maximum 40 Points
         </div>
 
-        <div class="scale-bars">
-
-            <div class="scale-row" id="scale-normal">
-                <div class="scale-label">
-                    <div class="scale-dot" style="background:var(--green)"></div>
-                    <strong>0–7</strong>: Normal
-                </div>
-                <span>Stable / Expansion</span>
-            </div>
-
-            <div class="scale-row" id="scale-correction">
-                <div class="scale-label">
-                    <div class="scale-dot" style="background:var(--amber)"></div>
-                    <strong>8–15</strong>: Correction Risk
-                </div>
-                <span>Vulnerability / Rotation</span>
-            </div>
-
-            <div class="scale-row" id="scale-high">
-                <div class="scale-label">
-                    <div class="scale-dot" style="background:var(--red)"></div>
-                    <strong>16–25</strong>: High Risk
-                </div>
-                <span>De-risking / Stress</span>
-            </div>
-
-            <div class="scale-row" id="scale-systemic">
-                <div class="scale-label">
-                    <div class="scale-dot" style="background:var(--purple)"></div>
-                    <strong>26–40</strong>: Systemic
-                </div>
-                <span>Liquidity / Capitulation</span>
-            </div>
-
+        <div class="matrix-wrap">
+            <table class="regime-matrix">
+                <thead>
+                    <tr>
+                        <th>SCORE BAND</th>
+                        <th>REGIME LABEL</th>
+                        <th>TARGET PORTFOLIO ACTION</th>
+                        <th>MARKET ENVIRONMENT CHARACTERISTICS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="matrix-row" id="scale-normal">
+                        <td><strong>0–3</strong></td>
+                        <td><strong>Normal Risk</strong></td>
+                        <td><strong>Fully Invested / Risk-On</strong></td>
+                        <td>Volatility is suppressed, credit spreads are tight, and market breadth is healthy. Asset allocation should favor maximum growth equity and high-beta exposure.</td>
+                    </tr>
+                    <tr class="matrix-row" id="scale-watch">
+                        <td><strong>4–7</strong></td>
+                        <td><strong>Correction Risk</strong></td>
+                        <td><strong>Tactical Neutral / Watch</strong></td>
+                        <td>Early macro or technical cracks appearing (e.g., energy spikes or minor technical breakdown). Portfolio should pause new capital deployments and evaluate hedge triggers.</td>
+                    </tr>
+                    <tr class="matrix-row" id="scale-systemic-stress">
+                        <td><strong>8–11</strong></td>
+                        <td><strong>Systemic Stress</strong></td>
+                        <td><strong>Defensive Pivot / Hedges On</strong></td>
+                        <td>Broader technical breakdown. Multiple asset classes are flashing warning signs (e.g., yields spiking or currency unwinding). Start moving capital into cash alternatives or defensive moats like <strong>AVGO</strong> and <strong>PLTR</strong>.</td>
+                    </tr>
+                    <tr class="matrix-row" id="scale-high-stress">
+                        <td><strong>12–15</strong></td>
+                        <td><strong>High Stress</strong></td>
+                        <td><strong>De-risking / Stress Plan</strong></td>
+                        <td>Volatility enters a persistent high regime. High-yield credit markets begin to tighten significantly. Implement strict portfolio de-risking by trimming high-beta and leveraged assets.</td>
+                    </tr>
+                    <tr class="matrix-row" id="scale-high-risk">
+                        <td><strong>16–25</strong></td>
+                        <td><strong>High Risk</strong></td>
+                        <td><strong>De-risking / Stress Plan</strong></td>
+                        <td>Broad-based market panic. Market breadth collapses completely, and correlation approaches 1. Portfolio focuses heavily on capital preservation and downside protection.</td>
+                    </tr>
+                    <tr class="matrix-row" id="scale-systemic">
+                        <td><strong>26–40</strong></td>
+                        <td><strong>Systemic Risk</strong></td>
+                        <td><strong>Liquidity / Capitulation</strong></td>
+                        <td>Full-scale institutional credit freeze, currency dislocation, or market crash. Liquidate remaining vulnerable exposures and prepare to deploy capital into deeply discounted structural moats as capitulation peaks.</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -946,37 +1008,45 @@ function updateSummary(score,max){
     let text="Normal Risk";
     let cls="status-green";
     let scale="scale-normal";
-    let sub="No broad systemic stress confirmation.";
+    let sub="Normal risk regime; portfolio can remain fully invested / risk-on.";
 
     if(score>=26){
-
-        text="Systemic / Crash Risk";
+        text="Systemic Risk";
         cls="status-purple";
         scale="scale-systemic";
-        sub="Multiple asset classes are confirming systemic stress.";
+        sub="Systemic risk regime; liquidity / capitulation plan applies.";
 
     }else if(score>=16){
-
-        text="High Risk / Stress";
+        text="High Risk";
         cls="status-red";
-        scale="scale-high";
-        sub="Material cross-asset deterioration is present.";
+        scale="scale-high-risk";
+        sub="Broad-based market panic; focus heavily on capital preservation and downside protection.";
+
+    }else if(score>=12){
+        text="High Stress";
+        cls="status-red";
+        scale="scale-high-stress";
+        sub="Persistent high volatility and tightening high-yield credit; implement strict de-risking.";
 
     }else if(score>=8){
-
-        text="Correction / Vulnerable";
+        text="Systemic Stress";
         cls="status-amber";
-        scale="scale-correction";
-        sub="Risk factors are accumulating; correction risk elevated.";
+        scale="scale-systemic-stress";
+        sub="Broader technical breakdown; defensive pivot and hedges on.";
+
+    }else if(score>=4){
+        text="Correction Risk";
+        cls="status-amber";
+        scale="scale-watch";
+        sub="Early macro or technical cracks; tactical neutral / watch and evaluate hedge triggers.";
     }
 
     document
-        .querySelectorAll(".scale-row")
-        .forEach(x=>x.style.background="transparent");
+        .querySelectorAll(".matrix-row")
+        .forEach(x=>x.classList.remove("active"));
 
     document.getElementById(scale)
-        .style.background=
-        "rgba(59,130,246,.08)";
+        .classList.add("active");
 
     const status=
         document.getElementById("statusTermDisp");
@@ -988,7 +1058,6 @@ function updateSummary(score,max){
     document.getElementById("scoreSubtext")
         .innerText=sub;
 }
-
 
 /* =========================================================
    REGIME CLASSIFICATION
