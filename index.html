@@ -1,403 +1,1257 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Systemic Crash Risk Dashboard</title>
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: #334155;
-            --green: #10b981;
-            --amber: #f59e0b;
-            --red: #ef4444;
-            --accent: #3b82f6;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 20px;
-            margin-bottom: 25px;
-        }
-        h1 { margin: 0; font-size: 24px; font-weight: 700; }
-        .last-checked { color: var(--text-muted); font-size: 14px; }
-        
-        /* Summary Widgets */
-        .summary-grid {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-        .score-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .score-num { font-size: 48px; font-weight: 800; margin: 10px 0; }
-        .score-status { font-weight: 600; padding: 4px 12px; border-radius: 20px; display: inline-block; margin: 0 auto; }
-        
-        .scale-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-        }
-        .scale-title { font-weight: 600; margin-bottom: 15px; color: var(--text-muted); font-size: 14px; }
-        .scale-bars { display: flex; flex-direction: column; gap: 8px; }
-        .scale-row { display: flex; align-items: center; justify-content: space-between; font-size: 14px; }
-        .scale-label { display: flex; align-items: center; gap: 8px; }
-        .scale-dot { width: 10px; height: 10px; border-radius: 50%; }
-        
-        /* Table Layout */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 25px;
-        }
-        th, td { padding: 14px 18px; text-align: left; }
-        th { background-color: #162032; font-size: 13px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
-        tr { border-bottom: 1px solid var(--border); }
-        tr:last-child { border-bottom: none; }
-        
-        .metric-cat { font-size: 11px; text-transform: uppercase; color: var(--accent); font-weight: 700; display: block; margin-bottom: 2px; }
-        .metric-name { font-weight: 600; }
-        .badge { font-weight: 600; padding: 4px 8px; border-radius: 6px; font-size: 13px; display: inline-block; }
-        
-        .status-green { background: rgba(16, 185, 129, 0.15); color: var(--green); }
-        .status-amber { background: rgba(245, 158, 11, 0.15); color: var(--amber); }
-        .status-red { background: rgba(239, 68, 68, 0.15); color: var(--red); }
-        
-        /* Input Panel */
-        .control-panel {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
-        }
-        .panel-title { font-weight: 700; margin-bottom: 15px; font-size: 16px; }
-        .input-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .input-group { display: flex; flex-direction: column; gap: 5px; }
-        .input-group label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
-        .input-group input {
-            background-color: var(--bg-color);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 8px 12px;
-            color: var(--text-main);
-            font-size: 14px;
-        }
-        .input-group input:focus { border-color: var(--accent); outline: none; }
-        
-        .btn-container { display: flex; gap: 10px; justify-content: flex-end; }
-        button {
-            background-color: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 20px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 14px;
-            transition: opacity 0.2s;
-        }
-        button:hover { opacity: 0.9; }
-        button.secondary { background-color: transparent; border: 1px solid var(--border); color: var(--text-main); }
-        button.secondary:hover { background-color: rgba(255,255,255,0.05); }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced Systemic Crash Risk Dashboard</title>
 
-        .paste-box {
-            width: 100%;
-            background-color: var(--bg-color);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 10px;
-            color: var(--text-main);
-            font-family: monospace;
-            font-size: 13px;
-            margin-bottom: 15px;
-            box-sizing: border-box;
-            resize: vertical;
-        }
-    </style>
+<style>
+:root {
+    --bg-color:#0f172a;
+    --card-bg:#1e293b;
+    --card-bg2:#162032;
+    --text-main:#f8fafc;
+    --text-muted:#94a3b8;
+    --border:#334155;
+    --green:#10b981;
+    --amber:#f59e0b;
+    --red:#ef4444;
+    --purple:#9333ea;
+    --blue:#3b82f6;
+}
+
+* { box-sizing:border-box; }
+
+body {
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg-color);
+    color:var(--text-main);
+    margin:0;
+    padding:20px;
+}
+
+.container {
+    max-width:1100px;
+    margin:0 auto;
+}
+
+header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:1px solid var(--border);
+    padding-bottom:20px;
+    margin-bottom:25px;
+}
+
+h1 {
+    margin:0;
+    font-size:24px;
+}
+
+.last-checked {
+    color:var(--text-muted);
+    font-size:14px;
+    margin-top:4px;
+}
+
+/* SUMMARY */
+
+.summary-grid {
+    display:grid;
+    grid-template-columns:1fr 2fr;
+    gap:20px;
+    margin-bottom:20px;
+}
+
+.score-card,
+.scale-card,
+.control-panel,
+.signal-card {
+    background:var(--card-bg);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:20px;
+}
+
+.score-card {
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+.score-num {
+    font-size:48px;
+    font-weight:800;
+    margin:10px 0;
+}
+
+.score-status {
+    font-weight:600;
+    padding:5px 12px;
+    border-radius:20px;
+    display:inline-block;
+}
+
+.scale-title {
+    font-weight:600;
+    margin-bottom:15px;
+    color:var(--text-muted);
+    font-size:14px;
+}
+
+.scale-bars {
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+}
+
+.scale-row {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-size:14px;
+    padding:5px;
+    border-radius:6px;
+}
+
+.scale-label {
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.scale-dot {
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    flex-shrink:0;
+}
+
+/* SIGNAL CARDS */
+
+.signal-grid {
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+    margin-bottom:25px;
+}
+
+.signal-title {
+    font-size:12px;
+    color:var(--text-muted);
+    text-transform:uppercase;
+    font-weight:700;
+}
+
+.signal-value {
+    font-size:24px;
+    font-weight:800;
+    margin:7px 0;
+}
+
+.signal-description {
+    font-size:12px;
+    color:var(--text-muted);
+}
+
+/* TABLE */
+
+table {
+    width:100%;
+    border-collapse:collapse;
+    background:var(--card-bg);
+    border:1px solid var(--border);
+    border-radius:12px;
+    overflow:hidden;
+    margin-bottom:25px;
+}
+
+th,td {
+    padding:13px 16px;
+    text-align:left;
+}
+
+th {
+    background:var(--card-bg2);
+    font-size:12px;
+    text-transform:uppercase;
+    color:var(--text-muted);
+    letter-spacing:.5px;
+}
+
+tr {
+    border-bottom:1px solid var(--border);
+}
+
+tr:last-child {
+    border-bottom:none;
+}
+
+.metric-cat {
+    font-size:10px;
+    text-transform:uppercase;
+    color:var(--blue);
+    font-weight:700;
+    display:block;
+    margin-bottom:2px;
+}
+
+.metric-name {
+    font-weight:600;
+}
+
+.metric-note {
+    font-size:11px;
+    color:var(--text-muted);
+    margin-top:3px;
+}
+
+.badge {
+    font-weight:600;
+    padding:4px 8px;
+    border-radius:6px;
+    font-size:12px;
+    display:inline-block;
+}
+
+.status-green {
+    background:rgba(16,185,129,.15);
+    color:var(--green);
+}
+
+.status-amber {
+    background:rgba(245,158,11,.15);
+    color:var(--amber);
+}
+
+.status-red {
+    background:rgba(239,68,68,.15);
+    color:var(--red);
+}
+
+.status-purple {
+    background:rgba(147,51,234,.15);
+    color:#c084fc;
+}
+
+/* CONTROLS */
+
+.control-panel {
+    margin-bottom:25px;
+}
+
+.panel-title {
+    font-weight:700;
+    margin-bottom:15px;
+    font-size:16px;
+}
+
+.input-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.input-group {
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+}
+
+.input-group label {
+    font-size:12px;
+    color:var(--text-muted);
+    font-weight:600;
+}
+
+.input-group input {
+    background:var(--bg-color);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:8px 10px;
+    color:var(--text-main);
+    font-size:14px;
+}
+
+.input-group input:focus {
+    border-color:var(--blue);
+    outline:none;
+}
+
+.btn-container {
+    display:flex;
+    gap:10px;
+    justify-content:flex-end;
+}
+
+button {
+    background:var(--blue);
+    color:white;
+    border:none;
+    border-radius:6px;
+    padding:10px 20px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+button.secondary {
+    background:transparent;
+    border:1px solid var(--border);
+}
+
+.paste-box {
+    width:100%;
+    background:var(--bg-color);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:10px;
+    color:var(--text-main);
+    font-family:monospace;
+    font-size:13px;
+    margin-bottom:15px;
+    resize:vertical;
+}
+
+.info-box {
+    background:rgba(59,130,246,.08);
+    border:1px solid rgba(59,130,246,.25);
+    border-radius:8px;
+    padding:13px;
+    color:#bfdbfe;
+    font-size:12px;
+    line-height:1.5;
+    margin-bottom:20px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:800px) {
+    .summary-grid,
+    .signal-grid {
+        grid-template-columns:1fr;
+    }
+
+    table {
+        font-size:12px;
+    }
+
+    th,td {
+        padding:10px 8px;
+    }
+
+    header {
+        flex-direction:column;
+        align-items:flex-start;
+        gap:10px;
+    }
+}
+</style>
 </head>
+
 <body>
 
 <div class="container">
-    <header>
+
+<header>
+    <div>
+        <h1>Advanced Systemic Crash Risk Dashboard</h1>
+        <div class="last-checked" id="lastCheckDate"></div>
+    </div>
+    <div style="font-size:12px;color:var(--text-muted);text-align:right;">
+        Build v5.0<br>
+        Risk-Weighted + Momentum + Cross-Asset
+    </div>
+</header>
+
+<div class="summary-grid">
+
+    <div class="score-card">
+        <div style="font-size:14px;color:var(--text-muted);font-weight:600;">
+            Composite Crash Risk Score
+        </div>
+
+        <div class="score-num" id="totalScoreDisp">0 / 40</div>
+
         <div>
-            <h1>Advanced Systemic Crash Risk Dashboard</h1>
-            <div class="last-checked" id="lastCheckDate">Last check: 2026-09-09</div>
+            <span class="score-status status-green" id="statusTermDisp">
+                Normal Risk
+            </span>
         </div>
-        <div style="font-size: 12px; color: var(--text-muted); text-align: right;">Build v4.0 (Risk-Weighted & Multi-Asset)</div>
-    </header>
 
-    <div class="summary-grid">
-        <div class="score-card">
-            <div style="font-size: 14px; color: var(--text-muted); font-weight: 600;">Composite Weighted Score</div>
-            <div class="score-num" id="totalScoreDisp">2 / 30</div>
-            <div><span class="score-status status-green" id="statusTermDisp">Normal Risk</span></div>
+        <div id="scoreSubtext"
+             style="font-size:12px;color:var(--text-muted);margin-top:12px;">
         </div>
-        <div class="scale-card">
-            <div class="scale-title">Systemic Calibration Matrix (Max 30 Points)</div>
-            <div class="scale-bars">
-                <div class="scale-row" id="scale-normal">
-                    <div class="scale-label"><div class="scale-dot" style="background: var(--green);"></div><strong>0–5 Points</strong>: Normal Risk Regime</div>
-                    <span>Stable / Asset Expansion</span>
+    </div>
+
+    <div class="scale-card">
+        <div class="scale-title">
+            Systemic Calibration Matrix — Maximum 40 Points
+        </div>
+
+        <div class="scale-bars">
+
+            <div class="scale-row" id="scale-normal">
+                <div class="scale-label">
+                    <div class="scale-dot" style="background:var(--green)"></div>
+                    <strong>0–7</strong>: Normal
                 </div>
-                <div class="scale-row" id="scale-correction">
-                    <div class="scale-label"><div class="scale-dot" style="background: var(--amber);"></div><strong>6–11 Points</strong>: Correction / Vulnerable</div>
-                    <span>High Micro / Sector Rotations</span>
-                </div>
-                <div class="scale-row" id="scale-high">
-                    <div class="scale-label"><div class="scale-dot" style="background: var(--red);"></div><strong>12–19 Points</strong>: High Risk / Stress</div>
-                    <span>De-risking & Margin Pressures</span>
-                </div>
-                <div class="scale-row" id="scale-systemic">
-                    <div class="scale-label"><div class="scale-dot" style="background: #9333ea;"></div><strong>20+ Points</strong>: Systemic / Crash Event</div>
-                    <span>Liquidity Freezes / Capitulation</span>
-                </div>
+                <span>Stable / Expansion</span>
             </div>
+
+            <div class="scale-row" id="scale-correction">
+                <div class="scale-label">
+                    <div class="scale-dot" style="background:var(--amber)"></div>
+                    <strong>8–15</strong>: Correction Risk
+                </div>
+                <span>Vulnerability / Rotation</span>
+            </div>
+
+            <div class="scale-row" id="scale-high">
+                <div class="scale-label">
+                    <div class="scale-dot" style="background:var(--red)"></div>
+                    <strong>16–25</strong>: High Risk
+                </div>
+                <span>De-risking / Stress</span>
+            </div>
+
+            <div class="scale-row" id="scale-systemic">
+                <div class="scale-label">
+                    <div class="scale-dot" style="background:var(--purple)"></div>
+                    <strong>26–40</strong>: Systemic
+                </div>
+                <span>Liquidity / Capitulation</span>
+            </div>
+
         </div>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Systemic Asset Class & Metric</th>
-                <th>Current Reading</th>
-                <th>Risk Status</th>
-                <th>Weighted Points</th>
-            </tr>
-        </thead>
-        <tbody id="metricTableBody">
-            <!-- Dynamic rows will be inserted here -->
-        </tbody>
-    </table>
+</div>
 
-    <!-- Quick Paste Block -->
-    <div class="control-panel">
-        <div class="panel-title">⚡ Quick Paste Update (Claude "cd" command parsing)</div>
-        <p style="font-size: 12px; color: var(--text-muted); margin-top:-10px; margin-bottom:12px;">
-            Paste the raw metric values or string provided by your assistant model to parse and calculate instantly. Order: VIX, VIX_Chg, HY_OAS, BBB_OAS, 10Y_Yield, SP500_50DMA, SP500_200DMA, WTI, MOVE, USD_JPY, SP500_Breadth
-        </p>
-        <textarea class="paste-box" id="quickPasteInput" placeholder="15.72, 8.19, 268, 102, 4.80, 1.2, 7.6, 94.73, 105.4, 142.1, 62.5"></textarea>
-        <div class="btn-container">
-            <button onclick="parseQuickPaste()">Parse & Update</button>
-        </div>
+<!-- REGIME SIGNALS -->
+
+<div class="signal-grid">
+
+    <div class="signal-card">
+        <div class="signal-title">Volatility Regime</div>
+        <div class="signal-value" id="volRegime">—</div>
+        <div class="signal-description" id="volDesc"></div>
     </div>
 
-    <!-- Manual Entry Block -->
-    <div class="control-panel">
-        <div class="panel-title">🔧 Manual Structural Overrides</div>
-        <div class="input-grid">
-            <div class="input-group"><label>VIX Level</label><input type="number" step="0.01" id="in_vix" value="15.72"></div>
-            <div class="input-group"><label>VIX 1-day % Change</label><input type="number" step="0.01" id="in_vix_chg" value="8.19"></div>
-            <div class="input-group"><label>HY OAS Spread (bp)</label><input type="number" id="in_hy" value="268"></div>
-            <div class="input-group"><label>BBB OAS Spread (bp)</label><input type="number" id="in_bbb" value="102"></div>
-            <div class="input-group"><label>10Y Yield (%)</label><input type="number" step="0.01" id="in_yield" value="4.80"></div>
-            <div class="input-group"><label>S&P vs 50DMA (%)</label><input type="number" step="0.01" id="in_dma50" value="1.2"></div>
-            <div class="input-group"><label>S&P vs 200DMA (%)</label><input type="number" step="0.01" id="in_dma200" value="7.6"></div>
-            <div class="input-group"><label>WTI Crude ($)</label><input type="number" step="0.01" id="in_wti" value="94.73"></div>
-            <div class="input-group"><label>MOVE Index (Bond Vol)</label><input type="number" step="0.1" id="in_move" value="105.4"></div>
-            <div class="input-group"><label>USD/JPY Exchange Rate</label><input type="number" step="0.1" id="in_jpy" value="142.1"></div>
-            <div class="input-group"><label>S&P 500 Breadth (% > 50DMA)</label><input type="number" step="0.1" id="in_breadth" value="62.5"></div>
-        </div>
-        <div class="btn-container">
-            <button class="secondary" onclick="resetForm()">Reset Defaults</button>
-            <button onclick="updateFromManual()">Save Manual Changes</button>
-        </div>
+    <div class="signal-card">
+        <div class="signal-title">Credit Regime</div>
+        <div class="signal-value" id="creditRegime">—</div>
+        <div class="signal-description" id="creditDesc"></div>
     </div>
+
+    <div class="signal-card">
+        <div class="signal-title">Macro Shock</div>
+        <div class="signal-value" id="macroRegime">—</div>
+        <div class="signal-description" id="macroDesc"></div>
+    </div>
+
+    <div class="signal-card">
+        <div class="signal-title">Equity Structure</div>
+        <div class="signal-value" id="equityRegime">—</div>
+        <div class="signal-description" id="equityDesc"></div>
+    </div>
+
+</div>
+
+<table>
+
+<thead>
+<tr>
+    <th>Risk Factor</th>
+    <th>Current Reading</th>
+    <th>Status</th>
+    <th>Points</th>
+</tr>
+</thead>
+
+<tbody id="metricTableBody"></tbody>
+
+</table>
+
+<!-- QUICK PASTE -->
+
+<div class="control-panel">
+
+<div class="panel-title">
+    ⚡ Quick Paste Update
+</div>
+
+<div class="info-box">
+    Paste values in the following order:
+    <br><br>
+    <strong>
+    VIX,
+    VIX 1D %,
+    VIX 5D %,
+    HY OAS,
+    HY OAS 5D bp change,
+    HY OAS 20D bp change,
+    BBB OAS,
+    10Y Yield,
+    10Y 20D bp change,
+    S&P vs 50DMA,
+    S&P vs 200DMA,
+    WTI,
+    WTI 20D %,
+    MOVE,
+    USDJPY,
+    Breadth % &gt;50DMA,
+    Breadth 20D change,
+    VIX 3M-1M spread
+    </strong>
+</div>
+
+<textarea
+class="paste-box"
+id="quickPasteInput"
+rows="3"
+placeholder="15.72, 8.19, 12.4, 268, 8, 22, 102, 4.80, 18, 1.2, 7.6, 94.73, 12.5, 105.4, 142.1, 62.5, -4.2, 1.8">
+</textarea>
+
+<div class="btn-container">
+    <button onclick="parseQuickPaste()">Parse & Update</button>
+</div>
+
+</div>
+
+<!-- MANUAL -->
+
+<div class="control-panel">
+
+<div class="panel-title">
+    🔧 Manual Structural Overrides
+</div>
+
+<div class="input-grid">
+
+<div class="input-group">
+<label>VIX Level</label>
+<input type="number" step=".01" id="in_vix" value="15.72">
+</div>
+
+<div class="input-group">
+<label>VIX 1-Day Change (%)</label>
+<input type="number" step=".01" id="in_vix_chg" value="8.19">
+</div>
+
+<div class="input-group">
+<label>VIX 5-Day Change (%)</label>
+<input type="number" step=".01" id="in_vix_5d" value="12.4">
+</div>
+
+<div class="input-group">
+<label>HY OAS (bp)</label>
+<input type="number" id="in_hy" value="268">
+</div>
+
+<div class="input-group">
+<label>HY OAS 5-Day Δ (bp)</label>
+<input type="number" step=".1" id="in_hy_5d" value="8">
+</div>
+
+<div class="input-group">
+<label>HY OAS 20-Day Δ (bp)</label>
+<input type="number" step=".1" id="in_hy_20d" value="22">
+</div>
+
+<div class="input-group">
+<label>BBB OAS (bp)</label>
+<input type="number" id="in_bbb" value="102">
+</div>
+
+<div class="input-group">
+<label>10Y Yield (%)</label>
+<input type="number" step=".01" id="in_yield" value="4.80">
+</div>
+
+<div class="input-group">
+<label>10Y 20-Day Δ (bp)</label>
+<input type="number" step=".1" id="in_yield_20d" value="18">
+</div>
+
+<div class="input-group">
+<label>S&P vs 50DMA (%)</label>
+<input type="number" step=".01" id="in_dma50" value="1.2">
+</div>
+
+<div class="input-group">
+<label>S&P vs 200DMA (%)</label>
+<input type="number" step=".01" id="in_dma200" value="7.6">
+</div>
+
+<div class="input-group">
+<label>WTI ($)</label>
+<input type="number" step=".01" id="in_wti" value="94.73">
+</div>
+
+<div class="input-group">
+<label>WTI 20-Day Change (%)</label>
+<input type="number" step=".01" id="in_wti_20d" value="12.5">
+</div>
+
+<div class="input-group">
+<label>MOVE Index</label>
+<input type="number" step=".1" id="in_move" value="105.4">
+</div>
+
+<div class="input-group">
+<label>USD/JPY</label>
+<input type="number" step=".1" id="in_jpy" value="142.1">
+</div>
+
+<div class="input-group">
+<label>Breadth (% > 50DMA)</label>
+<input type="number" step=".1" id="in_breadth" value="62.5">
+</div>
+
+<div class="input-group">
+<label>Breadth 20-Day Δ (percentage points)</label>
+<input type="number" step=".1" id="in_breadth_20d" value="-4.2">
+</div>
+
+<div class="input-group">
+<label>VIX 3M − 1M (points)</label>
+<input type="number" step=".1" id="in_vix_term" value="1.8">
+</div>
+
+</div>
+
+<div class="btn-container">
+    <button class="secondary" onclick="resetForm()">
+        Reset Defaults
+    </button>
+
+    <button onclick="updateFromManual()">
+        Save Manual Changes
+    </button>
+</div>
+
+</div>
+
 </div>
 
 <script>
-    // Architecture definition containing weights, thresholds, and categories
-    const metricConfig = {
-        vix: { name: "VIX Volatility Level", cat: "Equities / Volatility", maxPoints: 2, calc: v => v >= 25 ? 2 : (v >= 20 ? 1 : 0), format: v => v.toFixed(2) },
-        vix_chg: { name: "VIX 1-day Velocity change", cat: "Equities / Volatility", maxPoints: 2, calc: v => v >= 20 ? 2 : (v >= 10 ? 1 : 0), format: v => (v >= 0 ? "+" : "") + v.toFixed(2) + "%" },
-        hy: { name: "High Yield Corporate OAS (bp)", cat: "Credit Markets (Systemic Pillars)", maxPoints: 5, calc: v => v >= 450 ? 5 : (v >= 350 ? 3 : 0), format: v => v + " bp" },
-        bbb: { name: "BBB Investment Grade OAS (bp)", cat: "Credit Markets (Systemic Pillars)", maxPoints: 4, calc: v => v >= 160 ? 4 : (v >= 130 ? 2 : 0), format: v => v + " bp" },
-        yield: { name: "10-Year U.S. Treasury Yield", cat: "Fixed Income / Rates", maxPoints: 2, calc: v => v >= 5.0 ? 2 : (v >= 4.75 ? 1 : 0), format: v => v.toFixed(2) + "%" },
-        dma50: { name: "S&P 500 Position vs 50-DMA", cat: "Equities / Technicals", maxPoints: 2, calc: v => v <= -5 ? 2 : (v <= 0 ? 1 : 0), format: v => (v >= 0 ? "+" : "") + v.toFixed(1) + "%" },
-        dma200: { name: "S&P 500 Position vs 200-DMA", cat: "Equities / Technicals", maxPoints: 2, calc: v => v <= -10 ? 2 : (v <= 0 ? 1 : 0), format: v => (v >= 0 ? "+" : "") + v.toFixed(1) + "%" },
-        wti: { name: "WTI Crude Oil Spot Price", cat: "Commodities / Macro Shocks", maxPoints: 2, calc: v => v >= 100 ? 2 : (v >= 90 ? 1 : 0), format: v => "$" + v.toFixed(2) },
-        move: { name: "MOVE Index (Fixed Income Volatility)", cat: "Fixed Income / Rates", maxPoints: 3, calc: v => v >= 130 ? 3 : (v >= 110 ? 1.5 : 0), format: v => v.toFixed(1) },
-        jpy: { name: "USD/JPY Rate (FX Carry Unwind)", cat: "Foreign Exchange / Global Liquidity", maxPoints: 3, calc: v => v <= 130 ? 3 : (v <= 138 ? 1.5 : 0), format: v => v.toFixed(1) },
-        breadth: { name: "S&P Breadth (% of Stocks > 50-DMA)", cat: "Equities / Technicals", maxPoints: 3, calc: v => v <= 30 ? 3 : (v <= 50 ? 1.5 : 0), format: v => v.toFixed(1) + "%" }
-    };
 
-    // Current State Storage
-    let currentData = {
-        vix: 15.72, vix_chg: 8.19, hy: 268, bbb: 102, yield: 4.80, dma50: 1.2, dma200: 7.6, wti: 94.73, move: 105.4, jpy: 142.1, breadth: 62.5
-    };
+/* =========================================================
+   RISK ENGINE
+   =========================================================
 
-    function renderDashboard() {
-        const tbody = document.getElementById("metricTableBody");
-        tbody.innerHTML = "";
-        let totalScore = 0;
-        let totalMax = 0;
+   Maximum = 40 points
 
-        for (let key in metricConfig) {
-            const config = metricConfig[key];
-            const val = currentData[key];
-            const points = config.calc(val);
-            totalScore += points;
-            totalMax += config.maxPoints;
+   The model deliberately gives more importance to:
+   1. Credit deterioration
+   2. Volatility acceleration
+   3. Rates shock
+   4. Oil shock
+   5. Equity breadth
+   6. Cross-asset confirmation
 
-            // Determine status look based on allocations
-            let statusText = "Green";
-            let statusClass = "status-green";
-            if (points === config.maxPoints) {
-                statusText = "Red";
-                statusClass = "status-red";
-            } else if (points > 0) {
-                statusText = "Amber";
-                statusClass = "status-amber";
+   A high score requires multiple markets to confirm stress.
+*/
+
+const metricConfig = {
+
+    vix: {
+        name:"VIX Level",
+        cat:"Equities / Volatility",
+        maxPoints:3,
+        calc:v => v >= 30 ? 3 : (v >= 25 ? 2 : (v >= 20 ? 1 : 0)),
+        format:v => v.toFixed(2)
+    },
+
+    vix_chg:{
+        name:"VIX 1-Day Velocity",
+        cat:"Equities / Volatility",
+        maxPoints:2,
+        calc:v => v >= 30 ? 2 : (v >= 15 ? 1 : 0),
+        format:v => (v >= 0 ? "+" : "") + v.toFixed(1) + "%"
+    },
+
+    vix_5d:{
+        name:"VIX 5-Day Momentum",
+        cat:"Equities / Volatility",
+        maxPoints:2,
+        calc:v => v >= 50 ? 2 : (v >= 25 ? 1 : 0),
+        format:v => (v >= 0 ? "+" : "") + v.toFixed(1) + "%"
+    },
+
+    hy:{
+        name:"High Yield OAS",
+        cat:"Credit",
+        maxPoints:4,
+        calc:v => v >= 500 ? 4 : (v >= 400 ? 3 : (v >= 325 ? 1 : 0)),
+        format:v => v.toFixed(0) + " bp"
+    },
+
+    hy_5d:{
+        name:"HY OAS 5-Day Widening",
+        cat:"Credit Momentum",
+        maxPoints:2,
+        calc:v => v >= 25 ? 2 : (v >= 15 ? 1 : 0),
+        format:v => (v >= 0 ? "+" : "") + v.toFixed(0) + " bp"
+    },
+
+    hy_20d:{
+        name:"HY OAS 20-Day Widening",
+        cat:"Credit Momentum",
+        maxPoints:2,
+        calc:v => v >= 50 ? 2 : (v >= 30 ? 1 : 0),
+        format:v => (v >= 0 ? "+" : "") + v.toFixed(0) + " bp"
+    },
+
+    bbb:{
+        name:"BBB OAS",
+        cat:"Credit",
+        maxPoints:3,
+        calc:v => v >= 200 ? 3 : (v >= 160 ? 2 : (v >= 130 ? 1 : 0)),
+        format:v => v.toFixed(0) + " bp"
+    },
+
+    yield:{
+        name:"10-Year Treasury Yield",
+        cat:"Rates",
+        maxPoints:2,
+        calc:v => v >= 5.25 ? 2 : (v >= 4.75 ? 1 : 0),
+        format:v => v.toFixed(2) + "%"
+    },
+
+    yield_20d:{
+        name:"10Y 20-Day Yield Change",
+        cat:"Rates Momentum",
+        maxPoints:2,
+        calc:v => v >= 35 ? 2 : (v >= 20 ? 1 : 0),
+        format:v => (v >= 0 ? "+" : "") + v.toFixed(0) + " bp"
+    },
+
+    dma50:{
+        name:"S&P 500 vs 50-DMA",
+        cat:"Equities / Technicals",
+        maxPoints:2,
+        calc:v => v <= -5 ? 2 : (v <= 0 ? 1 : 0),
+        format:v => (v >= 0 ? "+" : "") + v.toFixed(1) + "%"
+    },
+
+    dma200:{
+        name:"S&P 500 vs 200-DMA",
+        cat:"Equities / Technicals",
+        maxPoints:2,
+        calc:v => v <= -10 ? 2 : (v <= 0 ? 1 : 0),
+        format:v => (v >= 0 ? "+" : "") + v.toFixed(1) + "%"
+    },
+
+    wti:{
+        name:"WTI Crude",
+        cat:"Commodities / Macro",
+        maxPoints:2,
+        calc:v => v >= 105 ? 2 : (v >= 90 ? 1 : 0),
+        format:v => "$" + v.toFixed(2)
+    },
+
+    wti_20d:{
+        name:"WTI 20-Day Momentum",
+        cat:"Commodities / Macro",
+        maxPoints:2,
+        calc:v => v >= 20 ? 2 : (v >= 10 ? 1 : 0),
+        format:v => (v >= 0 ? "+" : "") + v.toFixed(1) + "%"
+    },
+
+    move:{
+        name:"MOVE Bond Volatility",
+        cat:"Rates / Volatility",
+        maxPoints:3,
+        calc:v => v >= 140 ? 3 : (v >= 120 ? 2 : (v >= 110 ? 1 : 0)),
+        format:v => v.toFixed(1)
+    },
+
+    jpy:{
+        name:"USD/JPY Carry Signal",
+        cat:"FX / Liquidity",
+        maxPoints:2,
+        calc:v => v <= 130 ? 2 : (v <= 135 ? 1 : 0),
+        format:v => v.toFixed(1)
+    },
+
+    breadth:{
+        name:"S&P 500 Breadth > 50-DMA",
+        cat:"Equities / Breadth",
+        maxPoints:3,
+        calc:v => v <= 30 ? 3 : (v <= 50 ? 2 : (v <= 60 ? 1 : 0)),
+        format:v => v.toFixed(1) + "%"
+    },
+
+    breadth_20d:{
+        name:"Breadth 20-Day Deterioration",
+        cat:"Equities / Breadth Momentum",
+        maxPoints:2,
+        calc:v => v <= -15 ? 2 : (v <= -8 ? 1 : 0),
+        format:v => (v >= 0 ? "+" : "") + v.toFixed(1) + " pp"
+    },
+
+    vix_term:{
+        name:"VIX 3M − 1M Term Structure",
+        cat:"Volatility Structure",
+        maxPoints:2,
+        calc:v => v <= -2 ? 2 : (v <= 0 ? 1 : 0),
+        format:v => (v >= 0 ? "+" : "") + v.toFixed(1)
+    }
+};
+
+
+/* =========================================================
+   CURRENT DATA
+   ========================================================= */
+
+let currentData = {
+
+    vix:15.72,
+    vix_chg:8.19,
+    vix_5d:12.4,
+
+    hy:268,
+    hy_5d:8,
+    hy_20d:22,
+
+    bbb:102,
+
+    yield:4.80,
+    yield_20d:18,
+
+    dma50:1.2,
+    dma200:7.6,
+
+    wti:94.73,
+    wti_20d:12.5,
+
+    move:105.4,
+    jpy:142.1,
+
+    breadth:62.5,
+    breadth_20d:-4.2,
+
+    vix_term:1.8
+};
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+function getStatus(points,maxPoints){
+
+    if(points === 0)
+        return ["Green","status-green"];
+
+    if(points >= maxPoints)
+        return ["Red","status-red"];
+
+    return ["Amber","status-amber"];
+}
+
+
+/* =========================================================
+   RENDER TABLE
+   ========================================================= */
+
+function renderDashboard(){
+
+    const tbody =
+        document.getElementById("metricTableBody");
+
+    tbody.innerHTML="";
+
+    let totalScore=0;
+    let totalMax=0;
+
+    for(const key in metricConfig){
+
+        const config=metricConfig[key];
+        const val=currentData[key];
+
+        if(!Number.isFinite(val))
+            continue;
+
+        const points=config.calc(val);
+
+        totalScore+=points;
+        totalMax+=config.maxPoints;
+
+        const [statusText,statusClass]=
+            getStatus(points,config.maxPoints);
+
+        const row=document.createElement("tr");
+
+        row.innerHTML=`
+
+        <td>
+            <span class="metric-cat">
+                ${config.cat}
+            </span>
+
+            <span class="metric-name">
+                ${config.name}
+            </span>
+        </td>
+
+        <td style="font-family:monospace;font-weight:bold;">
+            ${config.format(val)}
+        </td>
+
+        <td>
+            <span class="badge ${statusClass}">
+                ${statusText}
+            </span>
+        </td>
+
+        <td style="font-weight:700;">
+            ${points} / ${config.maxPoints}
+        </td>
+        `;
+
+        tbody.appendChild(row);
+    }
+
+    updateSummary(totalScore,totalMax);
+    updateRegimes();
+
+    document.getElementById("lastCheckDate").innerText =
+        "Last check: " +
+        new Date().toLocaleDateString(
+            "en-CA",
+            {
+                year:"numeric",
+                month:"2-digit",
+                day:"2-digit"
             }
+        );
+}
 
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>
-                    <span class="metric-cat">${config.cat}</span>
-                    <span class="metric-name">${config.name}</span>
-                </td>
-                <td style="font-family: monospace; font-weight: bold;">${config.format(val)}</td>
-                <td><span class="badge ${statusClass}">${statusText}</span></td>
-                <td style="font-weight: 600;">${points} / ${config.maxPoints}</td>
-            `;
-            tbody.appendChild(row);
+
+/* =========================================================
+   SUMMARY
+   ========================================================= */
+
+function updateSummary(score,max){
+
+    document.getElementById("totalScoreDisp")
+        .innerText=`${score} / ${max}`;
+
+    let text="Normal Risk";
+    let cls="status-green";
+    let scale="scale-normal";
+    let sub="No broad systemic stress confirmation.";
+
+    if(score>=26){
+
+        text="Systemic / Crash Risk";
+        cls="status-purple";
+        scale="scale-systemic";
+        sub="Multiple asset classes are confirming systemic stress.";
+
+    }else if(score>=16){
+
+        text="High Risk / Stress";
+        cls="status-red";
+        scale="scale-high";
+        sub="Material cross-asset deterioration is present.";
+
+    }else if(score>=8){
+
+        text="Correction / Vulnerable";
+        cls="status-amber";
+        scale="scale-correction";
+        sub="Risk factors are accumulating; correction risk elevated.";
+    }
+
+    document
+        .querySelectorAll(".scale-row")
+        .forEach(x=>x.style.background="transparent");
+
+    document.getElementById(scale)
+        .style.background=
+        "rgba(59,130,246,.08)";
+
+    const status=
+        document.getElementById("statusTermDisp");
+
+    status.innerText=text;
+    status.className=
+        `score-status ${cls}`;
+
+    document.getElementById("scoreSubtext")
+        .innerText=sub;
+}
+
+
+/* =========================================================
+   REGIME CLASSIFICATION
+   ========================================================= */
+
+function updateRegimes(){
+
+    /* VOLATILITY */
+
+    let volScore =
+        metricConfig.vix.calc(currentData.vix) +
+        metricConfig.vix_chg.calc(currentData.vix_chg) +
+        metricConfig.vix_5d.calc(currentData.vix_5d) +
+        metricConfig.move.calc(currentData.move) +
+        metricConfig.vix_term.calc(currentData.vix_term);
+
+    setRegime(
+        "volRegime",
+        "volDesc",
+        volScore,
+        12,
+        "Volatility contained.",
+        "Volatility rising.",
+        "Volatility stress."
+    );
+
+
+    /* CREDIT */
+
+    let creditScore =
+        metricConfig.hy.calc(currentData.hy) +
+        metricConfig.hy_5d.calc(currentData.hy_5d) +
+        metricConfig.hy_20d.calc(currentData.hy_20d) +
+        metricConfig.bbb.calc(currentData.bbb);
+
+    setRegime(
+        "creditRegime",
+        "creditDesc",
+        creditScore,
+        11,
+        "Credit markets calm.",
+        "Credit spreads widening.",
+        "Credit stress / systemic warning."
+    );
+
+
+    /* MACRO */
+
+    let macroScore =
+        metricConfig.yield.calc(currentData.yield) +
+        metricConfig.yield_20d.calc(currentData.yield_20d) +
+        metricConfig.wti.calc(currentData.wti) +
+        metricConfig.wti_20d.calc(currentData.wti_20d);
+
+    setRegime(
+        "macroRegime",
+        "macroDesc",
+        macroScore,
+        8,
+        "Macro shock limited.",
+        "Rates/oil becoming restrictive.",
+        "Major macro shock."
+    );
+
+
+    /* EQUITIES */
+
+    let equityScore =
+        metricConfig.dma50.calc(currentData.dma50) +
+        metricConfig.dma200.calc(currentData.dma200) +
+        metricConfig.breadth.calc(currentData.breadth) +
+        metricConfig.breadth_20d.calc(currentData.breadth_20d);
+
+    setRegime(
+        "equityRegime",
+        "equityDesc",
+        equityScore,
+        9,
+        "Equity structure healthy.",
+        "Equity breadth deteriorating.",
+        "Major equity technical stress."
+    );
+}
+
+
+function setRegime(
+    valueId,
+    descId,
+    score,
+    max,
+    greenText,
+    amberText,
+    redText
+){
+
+    const value=document.getElementById(valueId);
+    const desc=document.getElementById(descId);
+
+    value.className="signal-value";
+
+    if(score >= max*0.67){
+
+        value.innerText="STRESSED";
+        value.style.color="var(--red)";
+        desc.innerText=redText;
+
+    }else if(score >= max*0.34){
+
+        value.innerText="WATCH";
+        value.style.color="var(--amber)";
+        desc.innerText=amberText;
+
+    }else{
+
+        value.innerText="CALM";
+        value.style.color="var(--green)";
+        desc.innerText=greenText;
+    }
+}
+
+
+/* =========================================================
+   MANUAL UPDATE
+   ========================================================= */
+
+function updateFromManual(){
+
+    Object.keys(currentData).forEach(key=>{
+
+        const input=
+            document.getElementById("in_"+key);
+
+        if(input){
+
+            const val=parseFloat(input.value);
+
+            if(Number.isFinite(val))
+                currentData[key]=val;
         }
+    });
 
-        // Render summary items
-        document.getElementById("totalScoreDisp").innerText = `${totalScore} / ${totalMax}`;
-        
-        let baselineText = "Normal Risk";
-        let baselineClass = "status-green";
-        
-        // Remove old indicators
-        document.querySelectorAll('.scale-row').forEach(el => el.style.background = 'transparent');
+    renderDashboard();
+}
 
-        if (totalScore >= 20) {
-            baselineText = "Systemic / Crash Event";
-            baselineClass = "status-red";
-            document.getElementById("scale-systemic").style.background = "rgba(147, 51, 234, 0.15)";
-        } else if (totalScore >= 12) {
-            baselineText = "High Risk / Stress";
-            baselineClass = "status-red";
-            document.getElementById("scale-high").style.background = "rgba(239, 68, 68, 0.15)";
-        } else if (totalScore >= 6) {
-            baselineText = "Correction Risk";
-            baselineClass = "status-amber";
-            document.getElementById("scale-correction").style.background = "rgba(245, 158, 11, 0.15)";
-        } else {
-            document.getElementById("scale-normal").style.background = "rgba(16, 185, 129, 0.15)";
-        }
 
-        const termDisp = document.getElementById("statusTermDisp");
-        termDisp.innerText = baselineText;
-        termDisp.className = `score-status ${baselineClass}`;
-        
-        // Set dynamically to current system date if not matching tracking instance
-        const today = new Date();
-        document.getElementById("lastCheckDate").innerText = `Last check: ${today.toISOString().split('T')[0]}`;
+/* =========================================================
+   QUICK PASTE
+   ========================================================= */
+
+function parseQuickPaste(){
+
+    const text=
+        document.getElementById("quickPasteInput").value;
+
+    const cleaned=text
+        .replace(/[\[\]\s]/g,"");
+
+    const items=cleaned.split(",");
+
+    if(items.length < 18){
+
+        alert(
+            "Please provide all 18 values in the specified order."
+        );
+
+        return;
     }
 
-    function updateFromManual() {
-        currentData.vix = parseFloat(document.getElementById("in_vix").value);
-        currentData.vix_chg = parseFloat(document.getElementById("in_vix_chg").value);
-        currentData.hy = parseFloat(document.getElementById("in_hy").value);
-        currentData.bbb = parseFloat(document.getElementById("in_bbb").value);
-        currentData.yield = parseFloat(document.getElementById("in_yield").value);
-        currentData.dma50 = parseFloat(document.getElementById("in_dma50").value);
-        currentData.dma200 = parseFloat(document.getElementById("in_dma200").value);
-        currentData.wti = parseFloat(document.getElementById("in_wti").value);
-        currentData.move = parseFloat(document.getElementById("in_move").value);
-        currentData.jpy = parseFloat(document.getElementById("in_jpy").value);
-        currentData.breadth = parseFloat(document.getElementById("in_breadth").value);
-        renderDashboard();
-    }
+    const keys=[
+        "vix",
+        "vix_chg",
+        "vix_5d",
+        "hy",
+        "hy_5d",
+        "hy_20d",
+        "bbb",
+        "yield",
+        "yield_20d",
+        "dma50",
+        "dma200",
+        "wti",
+        "wti_20d",
+        "move",
+        "jpy",
+        "breadth",
+        "breadth_20d",
+        "vix_term"
+    ];
 
-    function parseQuickPaste() {
-        const text = document.getElementById("quickPasteInput").value;
-        // Strip out brackets or characters if accidentally grabbed
-        const cleaned = text.replace(/[\[\]\s]/g, '');
-        const items = cleaned.split(',');
-        
-        if (items.length >= 11) {
-            currentData.vix = parseFloat(items[0]);
-            currentData.vix_chg = parseFloat(items[1]);
-            currentData.hy = parseFloat(items[2]);
-            currentData.bbb = parseFloat(items[3]);
-            currentData.yield = parseFloat(items[4]);
-            currentData.dma50 = parseFloat(items[5]);
-            currentData.dma200 = parseFloat(items[6]);
-            currentData.wti = parseFloat(items[7]);
-            currentData.move = parseFloat(items[8]);
-            currentData.jpy = parseFloat(items[9]);
-            currentData.breadth = parseFloat(items[10]);
+    keys.forEach((key,i)=>{
 
-            // Sync values to forms
-            document.getElementById("in_vix").value = currentData.vix;
-            document.getElementById("in_vix_chg").value = currentData.vix_chg;
-            document.getElementById("in_hy").value = currentData.hy;
-            document.getElementById("in_bbb").value = currentData.bbb;
-            document.getElementById("in_yield").value = currentData.yield;
-            document.getElementById("in_dma50").value = currentData.dma50;
-            document.getElementById("in_dma200").value = currentData.dma200;
-            document.getElementById("in_wti").value = currentData.wti;
-            document.getElementById("in_move").value = currentData.move;
-            document.getElementById("in_jpy").value = currentData.jpy;
-            document.getElementById("in_breadth").value = currentData.breadth;
+        const value=parseFloat(items[i]);
 
-            renderDashboard();
-        } else {
-            alert("Error parsing string. Ensure there are 11 comma-separated values present mapping to all metrics.");
-        }
-    }
+        if(Number.isFinite(value))
+            currentData[key]=value;
 
-    function resetForm() {
-        currentData = {
-            vix: 15.72, vix_chg: 8.19, hy: 268, bbb: 102, yield: 4.80, dma50: 1.2, dma200: 7.6, wti: 94.73, move: 105.4, jpy: 142.1, breadth: 62.5
-        };
-        // sync form UI
-        Object.keys(currentData).forEach(key => {
-            document.getElementById("in_" + key).value = currentData[key];
-        });
-        renderDashboard();
-    }
+        const input=
+            document.getElementById("in_"+key);
 
-    // Initialize display on startup
-    window.onload = renderDashboard;
+        if(input)
+            input.value=currentData[key];
+    });
+
+    renderDashboard();
+}
+
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+function resetForm(){
+
+    currentData={
+
+        vix:15.72,
+        vix_chg:8.19,
+        vix_5d:12.4,
+
+        hy:268,
+        hy_5d:8,
+        hy_20d:22,
+
+        bbb:102,
+
+        yield:4.80,
+        yield_20d:18,
+
+        dma50:1.2,
+        dma200:7.6,
+
+        wti:94.73,
+        wti_20d:12.5,
+
+        move:105.4,
+        jpy:142.1,
+
+        breadth:62.5,
+        breadth_20d:-4.2,
+
+        vix_term:1.8
+    };
+
+    Object.keys(currentData).forEach(key=>{
+
+        const input=
+            document.getElementById("in_"+key);
+
+        if(input)
+            input.value=currentData[key];
+
+    });
+
+    renderDashboard();
+}
+
+
+/* =========================================================
+   INITIALIZE
+   ========================================================= */
+
+window.onload=renderDashboard;
+
 </script>
+
 </body>
 </html>
