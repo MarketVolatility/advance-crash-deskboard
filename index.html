@@ -396,9 +396,94 @@ button.secondary {
     }
 }
 </style>
+
+<style>
+.regime-scoring-panel {
+  margin: 18px 0 24px;
+  padding: 18px;
+  border: 1px solid rgba(127,127,127,.28);
+  border-radius: 12px;
+}
+.regime-scoring-title {
+  font-weight: 700;
+  letter-spacing: .08em;
+  margin-bottom: 14px;
+}
+.regime-score-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.regime-score-card {
+  padding: 14px;
+  border: 1px solid rgba(127,127,127,.22);
+  border-radius: 10px;
+}
+.regime-score-name {
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+}
+.regime-score-status {
+  margin-top: 7px;
+  font-weight: 800;
+}
+.regime-score-value {
+  margin-top: 10px;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+.regime-score-description {
+  margin-top: 6px;
+  font-size: .86rem;
+  opacity: .78;
+}
+.regime-score-badge {
+  display: inline-block;
+  margin-top: 6px;
+  font-weight: 800;
+}
+@media (max-width: 900px) {
+  .regime-score-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .regime-score-grid { grid-template-columns: 1fr; }
+}
+</style>
+
 </head>
 
 <body>
+<div class="regime-scoring-panel">
+  <div class="regime-scoring-title">REGIME COMPONENT SCORES</div>
+  <div class="regime-score-grid">
+    <div class="regime-score-card">
+      <div class="regime-score-name">VOLATILITY REGIME</div>
+      <div class="regime-score-status">CALM</div>
+      <div class="regime-score-value">0 / 10</div>
+      <div class="regime-score-description">Volatility contained.</div>
+    </div>
+    <div class="regime-score-card">
+      <div class="regime-score-name">CREDIT REGIME</div>
+      <div class="regime-score-status">CALM</div>
+      <div class="regime-score-value">0 / 10</div>
+      <div class="regime-score-description">Credit markets calm.</div>
+    </div>
+    <div class="regime-score-card">
+      <div class="regime-score-name">MACRO SHOCK</div>
+      <div class="regime-score-status">WATCH</div>
+      <div class="regime-score-value">0 / 10</div>
+      <div class="regime-score-description">Rates/oil becoming restrictive.</div>
+    </div>
+    <div class="regime-score-card">
+      <div class="regime-score-name">EQUITY STRUCTURE</div>
+      <div class="regime-score-status">CALM</div>
+      <div class="regime-score-value">0 / 10</div>
+      <div class="regime-score-description">Equity structure healthy.</div>
+    </div>
+  </div>
+</div>
+
 
 <div class="container">
 
